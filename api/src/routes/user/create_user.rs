@@ -1,17 +1,17 @@
-use crate::{AppState, User};
+use crate::{AppState, NewUser, User};
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
-use mongodb::{bson::doc, Collection};
-
 use bcrypt::{hash, DEFAULT_COST};
+use mongodb::{bson::doc, Collection};
+use std::str::FromStr;
 
 pub async fn create_user(
   // this argument tells axum to parse the request body
   // as JSON into a `User` type
   State(app_state): State<AppState>,
-  Json(payload): Json<User>,
+  Json(payload): Json<NewUser>,
 ) -> impl IntoResponse {
   // Get user database
-  let user_database: Collection<User> = app_state
+  let user_database: Collection<NewUser> = app_state
     .mongo_client
     .database("freelance")
     .collection("users");
@@ -37,7 +37,7 @@ pub async fn create_user(
   let hashed_password = hash(payload.password, DEFAULT_COST).expect("Could not hash password");
 
   // Create user
-  let user = User {
+  let user = NewUser {
     email: payload.email,
     first_name: payload.first_name,
     last_name: payload.last_name,

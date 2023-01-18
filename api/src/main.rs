@@ -13,7 +13,7 @@ use dotenv::dotenv;
 use freelance_api::{
   middleware::auth,
   routes::{
-    project::create_project,
+    project::{create_project, get_project_list},
     user::{create_user, login_user},
   },
   AppState, LoggedInUser, User,
@@ -57,6 +57,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     .route("/user/create", post(create_user))
     .route("/user/login", get(login_user))
     .route("/project/create", post(create_project))
+    .route("/project/list", get(get_project_list))
     .layer(
       ServiceBuilder::new()
         .layer(Extension::<Option<LoggedInUser>>(None))
@@ -79,12 +80,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 /*
 GET /
-Returns "Hello, World!" for non logged in users and
-"Hello, Joe Blogs!" for logged in users
+Returns "Hello, Anonymous User!" for non logged in users and
+"Hello, Joe Blogs!" for logged in users as well as their ID
 */
 async fn root(Extension(option_user): Extension<Option<LoggedInUser>>) -> String {
   let Some(user) = option_user else {
-    return String::from("Hello, World")
+    return String::from("Hello, Anonymous User!")
   };
-  format!("Hello, {} {}!", user.first_name, user.last_name)
+  format!(
+    "Hello, {} {}! Your ID is {}",
+    user.first_name, user.last_name, user._id
+  )
 }
