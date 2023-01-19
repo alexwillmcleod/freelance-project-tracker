@@ -1,42 +1,13 @@
 pub mod middleware;
 pub mod routes;
 
+pub use routes::project::{NewProject, Project};
+pub use routes::user::{LoggedInUser, LoginUser, NewUser, User};
+
 use mongodb::Client;
 use serde::{Deserialize, Serialize};
 
 pub const WRONG_LOGIN_DETAILS_ERROR_MSG: &'static str = "Email or password is incorrect";
-
-// the output to our `create_user` handler
-#[derive(Serialize, Deserialize, Clone)]
-pub struct User {
-  pub _id: mongodb::bson::oid::ObjectId,
-  pub email: String,
-  pub first_name: String,
-  pub last_name: String,
-  pub password: String,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct LoggedInUser {
-  pub _id: mongodb::bson::oid::ObjectId,
-  pub email: String,
-  pub first_name: String,
-  pub last_name: String,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-pub struct NewUser {
-  pub email: String,
-  pub first_name: String,
-  pub last_name: String,
-  pub password: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct LoginUser {
-  pub email: String,
-  pub password: String,
-}
 
 #[derive(Serialize, PartialEq, Debug, Deserialize)]
 pub struct SessionToken {
@@ -46,15 +17,4 @@ pub struct SessionToken {
 #[derive(Clone)]
 pub struct AppState {
   pub mongo_client: Client,
-}
-
-#[derive(Serialize, PartialEq, Debug, Deserialize)]
-pub struct NewProject {
-  pub name: String,
-}
-
-#[derive(Serialize, PartialEq, Debug, Deserialize)]
-pub struct Project {
-  pub user: mongodb::bson::oid::ObjectId,
-  pub name: String,
 }

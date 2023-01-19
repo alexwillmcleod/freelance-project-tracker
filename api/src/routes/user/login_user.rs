@@ -1,23 +1,17 @@
-use axum::{
-  extract::State,
-  http::{Request, StatusCode},
-  middleware::{self, Next},
-  response::IntoResponse,
-  routing::{get, post},
-  Json, Router,
-};
+use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use mongodb::{bson::doc, Collection};
 
 use crate::WRONG_LOGIN_DETAILS_ERROR_MSG;
-use crate::{AppState, LoggedInUser, LoginUser, SessionToken, User};
+use crate::{AppState, LoginUser, SessionToken, User};
 use bcrypt::verify;
 use chrono::{Duration, Utc};
+use cookie::{Cookie, SameSite};
 use jwt_compact::{
   alg::{Hs256, Hs256Key},
   prelude::*,
 };
 use std::env;
-use tower_cookies::{Cookie, Cookies};
+use tower_cookies::Cookies;
 
 pub async fn login_user(
   cookies: Cookies,
@@ -72,7 +66,17 @@ pub async fn login_user(
     .token(header, &claims, &key)
     .expect("Could not create token");
 
-  cookies.add(Cookie::new("session-token", token));
+  let cookie_domain =
+    std::env::var("COOKIE_DOMAIN").expect("COOKIE_DOMAIN environment variable must be set");
+
+  cookies.add(
+    Cookie::build("session-token", token)
+      .secure(true)
+      .path("/")
+      .domain(cookie_domain)
+      .same_site(SameSite::None)
+      .finish(),
+  );
 
   Ok((StatusCode::OK, String::from("Successfully logged in")))
 }

@@ -1,8 +1,7 @@
-use crate::{AppState, NewUser, User};
+use crate::{AppState, NewUser};
 use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use bcrypt::{hash, DEFAULT_COST};
 use mongodb::{bson::doc, Collection};
-use std::str::FromStr;
 
 pub async fn create_user(
   // this argument tells axum to parse the request body

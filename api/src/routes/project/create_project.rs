@@ -1,5 +1,9 @@
-use crate::{LoggedInUser, NewProject, Project};
-use axum::{extract::State, response::IntoResponse, Extension, Json};
+use crate::{LoggedInUser, NewProject};
+use axum::{
+  extract::{Path, State},
+  response::IntoResponse,
+  Extension,
+};
 use bson::doc;
 use mongodb::Collection;
 use reqwest::StatusCode;
@@ -9,11 +13,11 @@ use crate::AppState;
 pub async fn create_project(
   Extension(option_user): Extension<Option<LoggedInUser>>,
   State(app_state): State<AppState>,
-  Json(project): Json<NewProject>,
+  Path(project_name): Path<String>,
 ) -> impl IntoResponse {
   // Connect to our database and create a project
   // Extract from JSON, project name, link to user creating it.
-  let project_database: Collection<Project> = app_state
+  let project_database: Collection<NewProject> = app_state
     .mongo_client
     .database("freelance")
     .collection("projects");
@@ -28,7 +32,7 @@ pub async fn create_project(
     .find_one(
       doc! {
         "user": &user._id,
-        "name": &project.name
+        "name": &project_name
       },
       None,
     )
@@ -45,9 +49,10 @@ pub async fn create_project(
   }
 
   // Instantiate Project object
-  let project = Project {
+  let project = NewProject {
     user: user._id,
-    name: project.name,
+    name: project_name,
+    todo_list: vec![],
   };
 
   // Add project to database
