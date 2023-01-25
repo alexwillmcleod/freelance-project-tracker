@@ -72,7 +72,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     .layer(
       CorsLayer::new()
         .allow_origin(Any)
-        .allow_methods(Any),
+        .allow_methods(Any)
         .allow_headers(Any)
     )
     .layer(CookieManagerLayer::new())
