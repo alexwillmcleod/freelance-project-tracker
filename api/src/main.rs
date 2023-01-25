@@ -8,7 +8,7 @@ use mongodb::{
   options::{ClientOptions, ResolverConfig},
   Client,
 };
-use tower_http::cors::CorsLayer;
+use tower_http::cors::{Any, CorsLayer};
 
 use dotenv::dotenv;
 use freelance_api::{
@@ -71,8 +71,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     )
     .layer(
       CorsLayer::new()
-        .allow_origin("".parse::<HeaderValue>().unwrap())
-        .allow_methods([Method::GET]),
+        .allow_origin(Any)
+        .allow_methods(Any),
+        .allow_headers(Any)
     )
     .layer(CookieManagerLayer::new())
     .with_state(app_state);
