@@ -1,7 +1,7 @@
 import styles from './style.module.css';
 import { Account, AccountInput } from '../../components/account/component';
 import { useState } from 'react';
-import { redirect } from 'react-router';
+import { useNavigate } from 'react-router';
 
 type UserDetails = {
   email: string;
@@ -17,6 +17,8 @@ export const SignUp = () => {
     first_name: '',
     last_name: '',
   });
+
+  const navigate = useNavigate();
 
   const handleEmailChange = (newValue: string) => {
     setUserDetails({
@@ -55,18 +57,14 @@ export const SignUp = () => {
     )
       return;
 
-    const createAccountResponse = await fetch(
-      'https://freelance-api.fly.dev/user/create',
-      {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(userDetails),
-      }
-    );
+    const createAccountResponse = await fetch('/api/user/create', {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userDetails),
+    });
 
     // If account is not successfully created
 
@@ -74,24 +72,22 @@ export const SignUp = () => {
     if (createAccountResponse.status != 201) return;
 
     // We are going to try and log in now
-    const loginAccountResponse = await fetch(
-      'https://freelance-api.fly.dev/user/login',
-      {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(userDetails),
-      }
-    );
+    const loginAccountResponse = await fetch('/api/user/login', {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      credentials: 'include',
+      body: JSON.stringify(userDetails),
+    });
 
     // If account is successfully logged into
     console.log(await loginAccountResponse.text());
     if (loginAccountResponse.status != 200) return;
 
-    redirect('/');
+    navigate('/');
   };
 
   return (

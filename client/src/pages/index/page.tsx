@@ -5,7 +5,7 @@ export const Index = () => {
 
   useEffect(() => {
     const getResponse = async () => {
-      const value = await fetch('https://freelance-api.fly.dev/', {
+      const value = await fetch('/api/', {
         method: 'GET',
         mode: 'cors',
         headers: { 'Access-Control-Allow-Origin': '*' },

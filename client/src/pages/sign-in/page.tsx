@@ -1,7 +1,7 @@
 import styles from './style.module.css';
 import { Account, AccountInput } from '../../components/account/component';
 import { useState } from 'react';
-import { redirect } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 
 type UserDetails = {
   email: string;
@@ -13,6 +13,8 @@ export const SignIn = () => {
     email: '',
     password: '',
   });
+
+  const navigate = useNavigate();
 
   const handleEmailChange = (newValue: string) => {
     setUserDetails({
@@ -31,24 +33,21 @@ export const SignIn = () => {
     if (!userDetails.email || !userDetails.password) return;
 
     // We are going to try and log in now
-    const loginAccountResponse = await fetch(
-      'https://freelance-api.fly.dev/user/login',
-      {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(userDetails),
-      }
-    );
+    const loginAccountResponse = await fetch('api/user/login', {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(userDetails),
+    });
 
     // If account is successfully logged into
     console.log(await loginAccountResponse.text());
     if (loginAccountResponse.status != 200) return;
 
-    redirect('/');
+    navigate('/');
   };
 
   return (
