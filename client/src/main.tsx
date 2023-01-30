@@ -5,6 +5,7 @@ import './index.css';
 import { Root } from './pages/root/page';
 import { SignUp } from './pages/sign-up/page';
 import { Index } from './pages/index/page';
+import { SignIn } from './pages/sign-in/page';
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,11 @@ const router = createBrowserRouter([
         index: true,
         path: 'sign-up',
         element: <SignUp />,
+      },
+      {
+        index: true,
+        path: 'sign-in',
+        element: <SignIn />,
       },
     ],
   },
