@@ -1,8 +1,15 @@
-FROM rust:1.66 as build
+FROM rust:latest as build
 
 # Create a new empty shell project
 RUN USER=root cargo new --bin freelance-api
 WORKDIR /freelance-api
+
+
+RUN rustup target add x86_64-unknown-linux-musl
+
+RUN apt-get update -y \
+&& apt-get upgrade -y \
+&& apt-get install -y cmake pkg-config libssl-dev
 
 # Copy our manifests
 COPY ./Cargo.lock ./Cargo.lock
@@ -19,7 +26,7 @@ COPY ./src ./src
 RUN rm ./target/release/deps/freelance_api*
 RUN cargo build --release
 
-FROM rust:1.66
+FROM rust:latest
 
 # Expose our port
 EXPOSE 7878
@@ -27,7 +34,6 @@ EXPOSE 7878
 # copy the build artifact from the build stage
 COPY --from=build /freelance-api/target/release/freelance-api .
 
-# Run release file
-# WORKDIR /freelance-api
 
-CMD ["./freelance-api"]
+# Run release file
+CMD ["cargo", "run", "--release"]

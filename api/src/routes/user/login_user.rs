@@ -71,9 +71,9 @@ pub async fn login_user(
 
   cookies.add(
     Cookie::build("session-token", token)
-      .secure(true)
+      // .secure(true)
       .path("/")
-      .domain(cookie_domain)
+      // .domain(cookie_domain)
       .same_site(SameSite::None)
       .finish(),
   );
