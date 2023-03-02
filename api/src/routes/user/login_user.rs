@@ -69,14 +69,37 @@ pub async fn login_user(
   let cookie_domain =
     std::env::var("COOKIE_DOMAIN").expect("COOKIE_DOMAIN environment variable must be set");
 
-  cookies.add(
-    Cookie::build("session-token", token)
-      // .secure(true)
-      .path("/")
-      // .domain(cookie_domain)
-      .same_site(SameSite::None)
-      .finish(),
-  );
+  enum AppEnvironment {
+    Development,
+    Production,
+  }
 
+  let rust_env = std::env::var("RUST_ENV").unwrap_or_else(|_| String::from("PROD"));
+  let rust_env = match rust_env {
+    v if v == String::from("DEV") => AppEnvironment::Development,
+    v if v == String::from("PROD") => AppEnvironment::Production,
+    _ => AppEnvironment::Production,
+  };
+
+  match rust_env {
+    AppEnvironment::Development => {
+      cookies.add(
+        Cookie::build("session-token", token)
+          .path("/")
+          .same_site(SameSite::None)
+          .finish(),
+      );
+    }
+    AppEnvironment::Production => {
+      cookies.add(
+        Cookie::build("session-token", token)
+          .secure(true)
+          .path("/")
+          .domain(cookie_domain)
+          .same_site(SameSite::None)
+          .finish(),
+      );
+    }
+  }
   Ok((StatusCode::OK, String::from("Successfully logged in")))
 }

@@ -41,6 +41,7 @@ pub async fn create_user(
     first_name: payload.first_name,
     last_name: payload.last_name,
     password: hashed_password,
+    avatar: None,
   };
   // Insert user into database
   user_database.insert_one(&user, None).await.unwrap();
