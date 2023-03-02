@@ -69,6 +69,7 @@ pub async fn auth<B>(
     email: user.email,
     first_name: user.first_name,
     last_name: user.last_name,
+    avatar: user.avatar,
   });
 
   request.extensions_mut().insert(logged_in_user);

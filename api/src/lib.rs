@@ -4,7 +4,6 @@ pub mod routes;
 pub use routes::project::{NewProject, Project};
 pub use routes::user::{LoggedInUser, LoginUser, NewUser, User};
 
-use mongodb::Client;
 use serde::{Deserialize, Serialize};
 
 pub const WRONG_LOGIN_DETAILS_ERROR_MSG: &'static str = "Email or password is incorrect";
@@ -16,5 +15,6 @@ pub struct SessionToken {
 
 #[derive(Clone)]
 pub struct AppState {
-  pub mongo_client: Client,
+  pub mongo_client: mongodb::Client,
+  pub aws_s3_client: aws_sdk_s3control::Client,
 }

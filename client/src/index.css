@@ -10,4 +10,9 @@
 body {
   width: 100vw;
   height: 100vh;
+  overflow-y: hidden;
+}
+
+#root {
+  height: 100%;
 }

@@ -1,13 +1,10 @@
 use axum::{
-  http::{HeaderValue, Method},
+  http::HeaderValue,
   middleware,
   routing::{get, patch, post},
   Extension, Router,
 };
-use mongodb::{
-  options::{ClientOptions, ResolverConfig},
-  Client,
-};
+use mongodb::{options::ClientOptions, Client};
 use tower_http::cors::{Any, CorsLayer};
 
 use dotenv::dotenv;
@@ -18,7 +15,7 @@ use freelance_api::{
       create_project, get_project_list,
       todo_list::{get_todo_list, update_todo_list},
     },
-    user::{create_user, login_user},
+    user::{create_user, get_user, login_user},
   },
   AppState, LoggedInUser,
 };
@@ -39,6 +36,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
   // Initialise Logging
   env_logger::init();
   info!("Starting up!");
+  println!("Starting app up!");
 
   // Load mongodb connection string from environment variable
   let mongo_client_uri = match env::var("MONGODB_URI") {
@@ -46,18 +44,33 @@ async fn main() -> Result<(), Box<dyn Error>> {
     Err(..) => panic!("MONGODB_URI environment variable is not set"),
   };
 
+  println!("Creating client options");
+  println!("mongo_client_uri = {}", mongo_client_uri);
   // Create a client
-  let options =
-    ClientOptions::parse_with_resolver_config(&mongo_client_uri, ResolverConfig::cloudflare())
-      .await?;
+  // let options =
+  //   ClientOptions::parse_with_resolver_config(&mongo_client_uri, ResolverConfig::cloudflare())
+  //     .await?;
 
+  let options = ClientOptions::parse(mongo_client_uri)
+    .await
+    .expect("Could not create client options");
+
+  println!("Connecting to mongo db!");
   let mongo_client = Client::with_options(options)?;
+  println!("Connected to mongo db!");
 
-  let app_state = AppState { mongo_client };
+  let aws_config = aws_config::load_from_env().await;
+  let aws_s3_client = aws_sdk_s3control::Client::new(&aws_config);
+
+  let app_state = AppState {
+    mongo_client,
+    aws_s3_client,
+  };
 
   // Build app with router
   let app = Router::new()
     .route("/", get(root))
+    .route("/user", get(get_user))
     .route("/user/create", post(create_user))
     .route("/user/login", post(login_user))
     .route("/project/create/:project_name", post(create_project))
@@ -84,10 +97,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
     .parse()
     .unwrap();
 
+  println!("Using port {}", port);
+
   // run our app with hyper
   // `axum::Server` is a re-export of `hyper::Server`
   let addr = SocketAddr::from(([0, 0, 0, 0], port));
   info!("Serving at {}", addr);
+  println!("Serving at {}", addr);
 
   axum::Server::bind(&addr)
     .serve(app.into_make_service())
