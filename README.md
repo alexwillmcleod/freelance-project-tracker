@@ -1,14 +1,8 @@
 # Freelance
 
-App for freelances to track the status of the their projects and share information with clients, as well as confirm and consent to changes to the project. Uses a rust based api with Axum, as well as MongoDB for the database and Amazon S3 for storage.
+App for freelances to track the status of the their projects and share information with clients, as well as confirm and consent to changes to the project. Uses a rust based api with Axum, Mongo for the database, React-Vite for the front-end, and AWS and docker compose for hosting. Uses full authentication with JWT tokens and cookies for session management.
 
-## API Routes
-
-/ GET. Returns in plain text "Hello, Anonymous User!" if you are not logged in with an auth token. "Hello, {firstName} {lastName}! Your ID is {id}" if you are logged in.
-
-## Docker
-
-Dockerfile is available for the api.
+<img src="client/public/screenshot.png" />
 
 ## Environment Variables
 
